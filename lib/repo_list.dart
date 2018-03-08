@@ -1,37 +1,55 @@
 import 'package:flutter/material.dart';
 import 'github_trending.dart';
+import 'dart:async';
 
 class RepoListWidget extends StatefulWidget {
+  final List<Repo> _repos = [];
+  final TrendingType type;
+
+  RepoListWidget({this.type});
+
   @override
   State<StatefulWidget> createState() => new _RepoListWidgetState();
 }
 
 class _RepoListWidgetState extends State<RepoListWidget> {
-  final List<Repo> _repos = [];
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      new GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
-    print('initState');
-    GitHubTrending gitHubTrending = new GitHubTrending();
-    gitHubTrending.getToday().then((repos) {
-      print('getToday: ' + repos.length.toString());
-      setState(() {
-        _repos.clear();
-        _repos.addAll(repos);
-      });
-    });
+    print('initState: ' + widget._repos.length.toString());
+    if (widget._repos.isEmpty) {
+      _handleRefresh();
+    }
     super.initState();
   }
 
   Widget _buildItem(context, index) {
-    return new RepoItem(_repos[index]);
+    return new RepoItem(widget._repos[index]);
+  }
+
+  Future<Null> _handleRefresh() {
+    print('_handleRefresh');
+    GitHubTrending gitHubTrending = new GitHubTrending();
+    return gitHubTrending.get(widget.type).then((repos) {
+      print('getToday: ' + repos.length.toString());
+      setState(() {
+        widget._repos.clear();
+        widget._repos.addAll(repos);
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return new ListView.builder(
-      itemCount: _repos.length,
-      itemBuilder: _buildItem,
+    return new RefreshIndicator(
+      key: _refreshIndicatorKey,
+      onRefresh: _handleRefresh,
+      child: new ListView.builder(
+        itemCount: widget._repos.length,
+        itemBuilder: _buildItem,
+      ),
     );
   }
 }

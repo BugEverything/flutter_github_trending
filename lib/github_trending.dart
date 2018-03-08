@@ -32,7 +32,7 @@ class Repo {
 class GitHubTrending {
   Future<List<Repo>> _sendRequest(Map<String, String> param) async {
     final httpClient = new HttpClient();
-    final uri = new Uri.https('github.com', '/trending');
+    final uri = new Uri.https('github.com', '/trending', param);
     final request = await httpClient.getUrl(uri);
     final response = await request.close();
     final responseBody = await response.transform(UTF8.decoder).join();
@@ -73,15 +73,23 @@ class GitHubTrending {
     return repos;
   }
 
-  Future<List<Repo>> getToday() {
-    return _sendRequest({'since': 'daily'});
-  }
-
-  Future<List<Repo>> getWeek() {
-    return _sendRequest({'since': 'weekly'});
-  }
-
-  Future<List<Repo>> getMonth() {
-    return _sendRequest({'since': 'monthly'});
+  Future<List<Repo>> get(TrendingType type) {
+    final param = <String, String>{};
+    switch (type) {
+      case TrendingType.daily:
+        param['since'] = 'daily';
+        break;
+      case TrendingType.weekly:
+        param['since'] = 'weekly';
+        break;
+      case TrendingType.monthly:
+        param['since'] = 'monthly';
+        break;
+      default:
+        break;
+    }
+    return _sendRequest(param);
   }
 }
+
+enum TrendingType { daily, weekly, monthly }
