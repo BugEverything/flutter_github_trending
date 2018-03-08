@@ -34,10 +34,15 @@ class _RepoListWidgetState extends State<RepoListWidget> {
     GitHubTrending gitHubTrending = new GitHubTrending();
     return gitHubTrending.get(widget.type).then((repos) {
       print('getToday: ' + repos.length.toString());
-      setState(() {
+      if (mounted) {
+        setState(() {
+          widget._repos.clear();
+          widget._repos.addAll(repos);
+        });
+      } else {
         widget._repos.clear();
         widget._repos.addAll(repos);
-      });
+      }
     });
   }
 
