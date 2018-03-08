@@ -12,6 +12,15 @@ class Repo {
   String fork;
   String star;
 
+  Repo(
+      {this.name,
+      this.link,
+      this.intro,
+      this.language,
+      this.starsToday,
+      this.fork,
+      this.star});
+
   @override
   String toString() {
     return 'name: $name; link: $link; intro: $intro; language: $language; starsToday: $starsToday; fork: $fork; star: $star';
@@ -42,7 +51,6 @@ class GitHubTrending {
       repo.intro = li.children[2].getElementsByTagName('p')[0].text.trim();
       var children = li.children[3].children;
       var length = children.length;
-      repo.language = 'None';
       if (length == 5) {
         repo.language = children[0].children[1].text.trim();
       }
