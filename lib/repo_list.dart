@@ -58,7 +58,7 @@ class RepoItem extends StatelessWidget {
         children: <Widget>[
           new Icon(
             Icons.fiber_manual_record,
-            color: const Color(0xFFDEA584),
+            color: new Color(repo.langColor),
             size: 20.0,
           ),
           new Text(

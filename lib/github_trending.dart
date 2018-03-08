@@ -11,6 +11,7 @@ class Repo {
   String starsToday;
   String fork;
   String star;
+  int langColor;
 
   Repo(
       {this.name,
@@ -19,11 +20,12 @@ class Repo {
       this.language,
       this.starsToday,
       this.fork,
-      this.star});
+      this.star,
+      this.langColor});
 
   @override
   String toString() {
-    return 'name: $name; link: $link; intro: $intro; language: $language; starsToday: $starsToday; fork: $fork; star: $star';
+    return 'name: $name; link: $link; intro: $intro; language: $language; starsToday: $starsToday; fork: $fork; star: $star; langColor: $langColor';
   }
 }
 
@@ -44,21 +46,29 @@ class GitHubTrending {
     var lis = reposList[0].getElementsByTagName('li');
     var repos = new List<Repo>();
     for (var li in lis) {
-      var repo = new Repo();
-      var href = li.children[0].getElementsByTagName('a')[0].attributes['href'];
-      repo.name = href.substring(1);
-      repo.link = baseUrl + href;
-      repo.intro = li.children[2].getElementsByTagName('p')[0].text.trim();
-      var children = li.children[3].children;
-      var length = children.length;
-      if (length == 5) {
-        repo.language = children[0].children[1].text.trim();
+      try {
+        var repo = new Repo();
+        var href =
+            li.children[0].getElementsByTagName('a')[0].attributes['href'];
+        repo.name = href.substring(1);
+        repo.link = baseUrl + href;
+        repo.intro = li.children[2].getElementsByTagName('p')[0].text.trim();
+        var children = li.children[3].children;
+        var length = children.length;
+        if (length == 5) {
+          repo.language = children[0].children[1].text.trim();
+          String langColor = children[0].children[0].attributes['style'];
+          langColor = '0xFF' + langColor.split('#')[1].replaceFirst(';', '');
+          repo.langColor = int.parse(langColor);
+        }
+        repo.starsToday = children[--length].text.trim().split(' ')[0];
+        length--;
+        repo.fork = children[--length].text.trim();
+        repo.star = children[--length].text.trim();
+        repos.add(repo);
+      } catch (e) {
+        print('Exception when parsing a repo: ' + e.toString());
       }
-      repo.starsToday = children[--length].text.trim().split(' ')[0];
-      length--;
-      repo.fork = children[--length].text.trim();
-      repo.star = children[--length].text.trim();
-      repos.add(repo);
     }
     return repos;
   }
